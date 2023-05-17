@@ -17,7 +17,7 @@ fetch_query = "SELECT * from image"
 cursor.execute(fetch_query)
 
 data = cursor.fetchall()
-frame_count = 0;
+frame_count = 0
 
 for d in data:
     image_data = d['img']
