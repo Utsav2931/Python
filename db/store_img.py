@@ -11,6 +11,7 @@ conn = psycopg2.connect(
 
 # Create a cursor object
 cursor = conn.cursor()
+cursor.execute("DELETE FROM image")
 
 video_path = "C:\\Users\\HP\\Downloads\\Test.mp4"
 video_capture = cv2.VideoCapture(video_path)
