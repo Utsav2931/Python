@@ -38,8 +38,8 @@ def on_message_received(ch, method, properties, body):
                         landmark_drawing_spec=None,
                         connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=1),
                     )
-            cv2.imshow('Face Mesh', frame)
-            cv2.waitKey(1)
+            #cv2.imshow('Face Mesh', frame)
+            #cv2.waitKey(1)
             
             frame_bytes = cv2.imencode('.jpg', frame)[1].tobytes()
             update_query = f"UPDATE image set img = {psycopg2.Binary(frame_bytes)} WHERE image.id = {decoded_body}"

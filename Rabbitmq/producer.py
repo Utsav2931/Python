@@ -15,7 +15,7 @@ client_channel = client_connection.channel()
 
 def on_client_message(ch, method, properties, body):
     print("Received Message: ", body.decode())
-    connection_parameters = pika.ConnectionParameters('localhost')
+    connection_parameters = pika.ConnectionParameters('localhost', heartbeat = 0)
 
     connection = pika.BlockingConnection(connection_parameters)
 
@@ -66,9 +66,9 @@ def on_client_message(ch, method, properties, body):
         #time.sleep(random.randint(1, 4))
 
         # Optionally, you can display the frames as well
-        cv2.imshow('Frame', frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # cv2.imshow('Frame', frame)
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
     # Release the video capture and close any open windows
     video_capture.release()
@@ -80,7 +80,7 @@ def on_client_message(ch, method, properties, body):
         if(job_queue.method.message_count == 0):
             print("Job Done")
             job_done = True
-            time.sleep(10)
+            time.sleep(2)
         else:
             print("Still Working Will Check After 10 Secs")
             print("Message in queue: ", job_queue.method.message_count)
@@ -104,7 +104,9 @@ def on_client_message(ch, method, properties, body):
 
     fourcc = cv2.VideoWriter_fourcc(*"H264")
     output_file = "C:\\Users\HP\\OneDrive\\Desktop\\Video Upload\\video_upload\\src\\assets\\output_video.mp4"
-    video_writer = cv2.VideoWriter(output_file, fourcc, 30, (480, 848))
+    image = cv2.imread('.\\mesh\\mesh_1.jpg')
+    height, width = image.shape[:2]
+    video_writer = cv2.VideoWriter(output_file, fourcc, 30, (width, height))
     print("Creating Video")
     for i in range (1, frame_count + 1):
         frame_path = f".\\mesh\\mesh_{i}.jpg"  # Path to the frame
@@ -128,6 +130,7 @@ def on_client_message(ch, method, properties, body):
     cursor.close()
     channel.queue_declare(queue='masterQueue')
     channel.basic_publish(exchange='', routing_key='masterQueue', body = message)
+    print("Message sent to backend")
     conn.close()
     channel.close()
     connection.close()
