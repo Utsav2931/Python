@@ -76,9 +76,11 @@ def on_client_message(ch, method, properties, body):
 
     job_done = False
     while not job_done:
+        job_queue = channel.queue_declare(queue='job')
         if(job_queue.method.message_count == 0):
             print("Job Done")
             job_done = True
+            time.sleep(10)
         else:
             print("Still Working Will Check After 10 Secs")
             print("Message in queue: ", job_queue.method.message_count)
@@ -100,8 +102,8 @@ def on_client_message(ch, method, properties, body):
         
         frame_count += 1
 
-    fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    output_file = "C:\\Users\\HP\\OneDrive\\Desktop\\Shared_Video\\output_video.mp4"
+    fourcc = cv2.VideoWriter_fourcc(*"H264")
+    output_file = "C:\\Users\HP\\OneDrive\\Desktop\\Video Upload\\video_upload\\src\\assets\\output_video.mp4"
     video_writer = cv2.VideoWriter(output_file, fourcc, 30, (480, 848))
     print("Creating Video")
     for i in range (1, frame_count + 1):
