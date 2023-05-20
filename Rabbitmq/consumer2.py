@@ -54,6 +54,8 @@ def on_message_received(ch, method, properties, body):
     total_task += 1 
     #print("Time taken: " + str(end_time - start_time))
     avg_time +=  (end_time - start_time) 
+    avg_update = f"UPDATE worker SET time = {avg_time / total_task} WHERE worker.id = 2"
+    cursor.execute(avg_update)
     print("Avg Time: " + str(avg_time / total_task))
     conn.commit()
     

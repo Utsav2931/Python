@@ -4,6 +4,9 @@ import random
 import cv2
 import psycopg2
 from psycopg2.extras import RealDictCursor
+import json
+import ffmpeg
+
 
 client_connection_parameters = pika.ConnectionParameters('localhost')
 client_connection = pika.BlockingConnection(client_connection_parameters)
@@ -98,7 +101,7 @@ def on_client_message(ch, method, properties, body):
         frame_count += 1
 
     fourcc = cv2.VideoWriter_fourcc(*"mp4v")
-    output_file = ".\\video\\output_video.mp4"
+    output_file = "C:\\Users\\HP\\OneDrive\\Desktop\\Shared_Video\\output_video.mp4"
     video_writer = cv2.VideoWriter(output_file, fourcc, 30, (480, 848))
     print("Creating Video")
     for i in range (1, frame_count + 1):
@@ -109,9 +112,22 @@ def on_client_message(ch, method, properties, body):
         #cv2.waitKey(1)
         # Specify the codec
     video_writer.release()
+
+    
     print("Video Created")
+    fetch_time = "SELECT * FROM worker"
+    cursor.execute(fetch_time)
+    data = cursor.fetchall()
+    message = {
+        "worker1" : data[0]['time'],
+        "worker2" : data[1]['time']
+    }
+    message = json.dumps(message)
     cursor.close()
+    channel.queue_declare(queue='masterQueue')
+    channel.basic_publish(exchange='', routing_key='masterQueue', body = message)
     conn.close()
+    channel.close()
     connection.close()
 
 

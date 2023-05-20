@@ -7,9 +7,14 @@ import numpy as np
 import mediapipe as mp
 from psycopg2.extras import RealDictCursor
 
+avg_time = 0
+total_task = 0
+
 def on_message_received(ch, method, properties, body):
+    global avg_time, total_task
     decoded_body = body.decode('utf-8')
     print(f'received: {decoded_body}')
+    start_time = time.time()
     fetch_query = f"SELECT * from image WHERE image.id = {decoded_body}"
     cursor.execute(fetch_query)
     data = cursor.fetchall()
@@ -43,6 +48,18 @@ def on_message_received(ch, method, properties, body):
 
     ch.basic_ack(delivery_tag=method.delivery_tag)
     print(f'finished processing and acknowledged message')
+    end_time = time.time()
+    total_task += 1 
+    #print("Time taken: " + str(end_time - start_time))
+    avg_time +=  (end_time - start_time) 
+    print(avg_time / total_task)
+    try:
+        avg_update = f"UPDATE worker SET time = {avg_time / total_task} WHERE worker.id = 1"
+        cursor.execute(avg_update)
+        print("Success")
+    except Exception as error:
+        print(error)
+    
     conn.commit()
     
 
