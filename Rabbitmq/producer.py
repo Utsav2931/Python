@@ -5,52 +5,46 @@ import cv2
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import json
-import ffmpeg
+import os
+from dotenv import dotenv_values
 
-
-client_connection_parameters = pika.ConnectionParameters('localhost')
+env_vars = dotenv_values('.env')  
+client_connection_parameters = pika.ConnectionParameters('localhost', heartbeat = 0)
 client_connection = pika.BlockingConnection(client_connection_parameters)
 client_channel = client_connection.channel()
-#client_channel.queue_declare(queue='clientQueue')
 
 def on_client_message(ch, method, properties, body):
+    global env_vars
     print("Received Message: ", body.decode())
     connection_parameters = pika.ConnectionParameters('localhost', heartbeat = 0)
-
     connection = pika.BlockingConnection(connection_parameters)
-
     channel = connection.channel()
-
     job_queue = channel.queue_declare(queue='job')
-
     messageId = 1
 
     conn = psycopg2.connect(
         host="localhost",
         database="postgres",
-        user="postgres",
-        password="my_db"
+        user=env_vars.get('USER'),
+        password=env_vars.get('PASSWORD')
     )
-
-    # Create a cursor object
+    
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM image")
-
-    video_path = "C:\\Users\\HP\\OneDrive\\Desktop\\Shared_Video\\Test.mp4"
+    video_path = env_vars.get('VIDEO_FOLDER')
+    video_path += "\\Test.mp4"
     video_capture = cv2.VideoCapture(video_path)
 
-    frame_count = 0  # Initialize frame counter
+    frame_count = 0  
 
     while True:
-        success, frame = video_capture.read()  # Read the next frame
+        success, frame = video_capture.read()  
 
         if not success: 
-            print("End of video or Video not found") # If the video has ended or cannot be read, break the loop
+            print("End of video or Video not found") 
             break
 
-        frame_count += 1  # Increment the frame counter
-
-        # Convert the frame to binary format
+        frame_count += 1  
         frame_bytes = cv2.imencode('.jpg', frame)[1].tobytes()
 
         # Insert the frame into the database
@@ -94,7 +88,6 @@ def on_client_message(ch, method, properties, body):
     for d in data:
         image_data = d['img']
         i_id = d['id']
-        #print(type(image_data))
         file_path = f".\\mesh\\mesh_{i_id}.jpg"
         
         with open(file_path, "wb") as file:
@@ -109,12 +102,10 @@ def on_client_message(ch, method, properties, body):
     video_writer = cv2.VideoWriter(output_file, fourcc, 30, (width, height))
     print("Creating Video")
     for i in range (1, frame_count + 1):
-        frame_path = f".\\mesh\\mesh_{i}.jpg"  # Path to the frame
+        frame_path = f".\\mesh\\mesh_{i}.jpg"  
         frame = cv2.imread(frame_path)
         video_writer.write(frame)
-        #cv2.imshow('Face Mesh', frame)
-        #cv2.waitKey(1)
-        # Specify the codec
+        
     video_writer.release()
 
     

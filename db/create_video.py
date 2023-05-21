@@ -7,8 +7,8 @@ import os
 conn = psycopg2.connect(
     host="localhost",
     database="postgres",
-    user="postgres",
-    password="my_db"
+    user="",
+    password=""
 )
 
 cursor = conn.cursor(cursor_factory=RealDictCursor)

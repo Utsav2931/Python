@@ -6,7 +6,9 @@ import cv2
 import numpy as np
 import mediapipe as mp
 from psycopg2.extras import RealDictCursor
+from dotenv import dotenv_values
 
+env_vars = dotenv_values('.env') 
 avg_time = 0
 total_task = 0
 
@@ -64,27 +66,18 @@ def on_message_received(ch, method, properties, body):
     
 
 connection_parameters = pika.ConnectionParameters('localhost')
-
 connection = pika.BlockingConnection(connection_parameters)
-
 channel = connection.channel()
-
 channel.queue_declare(queue='job')
-
 channel.basic_qos(prefetch_count=1)
-
 channel.basic_consume(queue='job', on_message_callback=on_message_received)
-
 print('Starting Consuming')
-
-
-
 
 conn = psycopg2.connect(
     host="localhost",
     database="postgres",
-    user="postgres",
-    password="my_db"
+    user=env_vars.get('USER'),
+    password=env_vars.get('PASSWORD')
 )
 
 

@@ -7,8 +7,8 @@ from psycopg2.extras import RealDictCursor
 conn = psycopg2.connect(
     host="localhost",
     database="postgres",
-    user="postgres",
-    password="my_db"
+    user="",
+    password=""
 )
 
 

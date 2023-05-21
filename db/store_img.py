@@ -5,15 +5,15 @@ import psycopg2
 conn = psycopg2.connect(
     host="localhost",
     database="postgres",
-    user="postgres",
-    password="my_db"
+    user="",
+    password=""
 )
 
 # Create a cursor object
 cursor = conn.cursor()
 cursor.execute("DELETE FROM image")
 
-video_path = "C:\\Users\\HP\\Downloads\\Test.mp4"
+video_path = ""
 video_capture = cv2.VideoCapture(video_path)
 
 frame_count = 0  # Initialize frame counter

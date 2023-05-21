@@ -7,7 +7,9 @@ import numpy as np
 import mediapipe as mp
 from psycopg2.extras import RealDictCursor
 import time
+from dotenv import dotenv_values
 
+env_vars = dotenv_values('.env') 
 avg_time = 0
 total_task = 0
 
@@ -80,8 +82,8 @@ print('Starting Consuming')
 conn = psycopg2.connect(
     host="localhost",
     database="postgres",
-    user="postgres",
-    password="my_db"
+    user=env_vars.get('USER'),
+    password=env_vars.get('PASSWORD')
 )
 
 
