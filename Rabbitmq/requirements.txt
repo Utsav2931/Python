@@ -1,0 +1,4 @@
+pika
+opencv-python
+psycopg2
+python-dotenv

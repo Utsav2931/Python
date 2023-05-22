@@ -7,6 +7,7 @@ from psycopg2.extras import RealDictCursor
 import json
 import os
 from dotenv import dotenv_values
+import os
 
 env_vars = dotenv_values('.env')  
 client_connection_parameters = pika.ConnectionParameters('127.0.0.1', heartbeat = 0)
@@ -31,8 +32,8 @@ def on_client_message(ch, method, properties, body):
     
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     cursor.execute("DELETE FROM image")
-    video_path = env_vars.get('VIDEO_FOLDER')
-    video_path += "\\Test.mp4"
+    video_path = 'assets'
+    video_path += r"/Test.mp4"
     video_capture = cv2.VideoCapture(video_path)
 
     frame_count = 0  
@@ -88,21 +89,22 @@ def on_client_message(ch, method, properties, body):
     for d in data:
         image_data = d['img']
         i_id = d['id']
-        file_path = f".\\mesh\\mesh_{i_id}.jpg"
+        file_path = f"mesh/mesh_{i_id}.jpg"
         
         with open(file_path, "wb") as file:
             file.write(image_data)
         
         frame_count += 1
 
-    fourcc = cv2.VideoWriter_fourcc(*"H264")
-    output_file = "C:\\Users\HP\\OneDrive\\Desktop\\Video Upload\\video_upload\\src\\assets\\output_video.mp4"
-    image = cv2.imread('.\\mesh\\mesh_1.jpg')
+    fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+    output_file = "./assets/output_video_1.mp4"
+    image = cv2.imread('mesh/mesh_1.jpg')
     height, width = image.shape[:2]
     video_writer = cv2.VideoWriter(output_file, fourcc, 30, (width, height))
     print("Creating Video")
     for i in range (1, frame_count + 1):
-        frame_path = f".\\mesh\\mesh_{i}.jpg"  
+        frame_path = f"./mesh/mesh_{i}.jpg"  
+        
         frame = cv2.imread(frame_path)
         video_writer.write(frame)
         
@@ -110,6 +112,7 @@ def on_client_message(ch, method, properties, body):
 
     
     print("Video Created")
+    os.system("ffmpeg -i ./assets/output_video_1.mp4 -vcodec libx264 -f mp4 ./assets/output_video.mp4 -y")
     fetch_time = "SELECT * FROM worker"
     cursor.execute(fetch_time)
     data = cursor.fetchall()
